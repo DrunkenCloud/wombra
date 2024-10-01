@@ -3,87 +3,80 @@ from bs4 import BeautifulSoup
 import re
 import os
 
-def extract_previous_chapter_info(folder_name, start, base_url):
-    chapter_link = ""
-    previous_link = ""
-    if os.path.exists(f'{folder_name}/chapter-{start - 1}'):
-        with open(f'{folder_name}/chapter-{start - 1}', 'r') as file:
-            for i, line in enumerate(file):
-                if i == 2:
-                    previous_link = line.rstrip()
-                if i == 3:
-                    chapter_link = line.split(base_url)[1].rstrip()
-                    break
-    return chapter_link, previous_link
+def extract_chapter_content(soup, chapter_link):
+    content_div = soup.find('div', id='chr-content')
+    if not content_div:
+        print('Chapter content not found!')
+        return None, None
 
-def extract_chapter_content(soup, i):
-    curr_chapter_instances = soup.find_all(string=lambda text: f'Chapter {i}' in text)
-    if len(curr_chapter_instances) >= 2:
-        second_last = curr_chapter_instances[-2]
-        paragraph_tag = second_last.find_next('p')
-        content = []
-        while paragraph_tag and paragraph_tag.name != 'div':
-            content.append(paragraph_tag.get_text(strip=True))
-            paragraph_tag = paragraph_tag.find_next_sibling()
-        return "\n".join(content)
-    else:
-        print(f'Not enough occurrences of "Chapter {i}" found.')
-        exit(1)
+    content_tag = content_div.find('p').find_next_sibling()
 
-def curling(chapter_begin, chapter_end, base_url, chapter_link, folder_name, previous_link):
-    temp_prev = ""
+    content = []
+    while content_tag and content_tag.name != 'div':
+        if content_tag.name == 'p':
+            content.append(content_tag.get_text(strip=True))
+        content_tag = content_tag.find_next_sibling()
     
-    for i in range(chapter_begin, chapter_end):
-        if os.path.exists(f'{folder_name}/chapter-{i}'):
-            while os.path.exists(f'{folder_name}/chapter-{i}'):
-                i += 1
-            if i >= chapter_end:
-                return
-            chapter_link, temp_prev = extract_previous_chapter_info(folder_name, i, base_url)
+    a_tag = soup.find('a', href=chapter_link)
+    if not a_tag:
+        print('Chapter heading not found!')
+        return None, None
+    chapter_heading = a_tag.get('title')
 
-        file_name = f'chapter-{i}'
+    return chapter_heading, "\n".join(content)
+
+def curling(chapter_number, base_url, chapter_link, folder_name):
+    fail_safe = 0
+    
+    while chapter_link != "" and fail_safe < 1:
+        fail_safe += 1
         url = base_url + chapter_link
         print(url)
         response = requests.get(url)
         html_content = response.content
         soup = BeautifulSoup(html_content, 'html.parser')
 
-        prev_chapter = previous_link if i == chapter_begin else temp_prev
+        chapter_heading, extracted_text = extract_chapter_content(soup, chapter_link)
+        if not chapter_heading or not extracted_text:
+            exit(1)
 
-        a_tag = soup.find('a', href=chapter_link)
-        chapter_heading = a_tag.get('title') if a_tag else "Heading not found!!"
-        
         link_tag = soup.find('a', id='next_chap')
         if link_tag:
-            temp_prev = base_url + chapter_link
             chapter_link = link_tag.get('href')
-            print(chapter_link)
+            if not chapter_link:
+                base_url = webnovel_link
+                chapter_link = ""
         else:
             print("Next chapter link not found")
             exit(1)
 
-        with open(f'{folder_name}/{file_name}', 'w', encoding='utf-8') as file:
+        with open(f'{folder_name}/{chapter_number}', 'w', encoding='utf-8') as file:
             file.write(chapter_heading + "\n")
-            file.write(prev_chapter + "\n")
-            file.write(temp_prev + "\n")
-            file.write(base_url + chapter_link + "\n")
-
-        extracted_text = extract_chapter_content(soup, i)
-        with open(f'{folder_name}/{file_name}', 'a', encoding='utf-8') as file:
             file.write(extracted_text)
+        with open('final', 'w') as f:
+            f.write(str(chapter_number) + '||' + url)        
+        chapter_number+=1
 
 def downloadChapters(base_url, webnovel_link):
     folder_name = webnovel_link.split(".")[1].split("/")[-1]
+    start = 0
     
-    start = 1
     if os.path.isdir(folder_name):
-        all_files = os.listdir(folder_name)
-        while True:
-            if f'chapter-{start}' not in all_files:
-                break
-            start += 1
-        
-        chapter_link, previous_link = extract_previous_chapter_info(folder_name, start, base_url)
+        with open('final', 'r') as f:
+            start, chap_link = f.readline().split('||')
+            start = int(start) + 1
+            response = requests.get(chap_link)
+            html_content = response.content
+            soup = BeautifulSoup(html_content, 'html.parser')
+            link_tag = soup.find('a', id='next_chap')
+            if link_tag:
+                chapter_link = link_tag.get('href')
+                if not chapter_link:
+                    return
+                print(chapter_link)
+            else:
+                print("Next chapter link not found")
+                exit(1)
     else:
         os.mkdir(folder_name)
         response = requests.get(webnovel_link)
@@ -97,10 +90,9 @@ def downloadChapters(base_url, webnovel_link):
             print("Chapter 1 link not found!!")
             exit(1)
 
-        previous_link = webnovel_link
+        start = 1
 
-    print(base_url + chapter_link)
-    curling(start, start + 10, base_url, chapter_link, folder_name, previous_link)
+    curling(start, base_url, chapter_link, folder_name)
 
 if __name__ == "__main__":
     webnovel_link = 'https://readnovelfull.com/reverend-insanity-v1.html'
