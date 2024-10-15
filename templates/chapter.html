@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="../static/styles/chapter.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novel Reader</title>
+</head>
+<body>
+    <div class="container">
+        <div class="header" id="chapter-heading">{{ chapter_data.heading }}</div>
+        <div class="nav-buttons">
+            <button id="prev-btn1">Previous</button>
+            <button id="home-btn1">Home</button>
+            <button id="next-btn1">Next</button>
+        </div>
+
+        <div class="content" id="chapter-content">{{ chapter_data.content | replace('\n', '<br><br>') | safe }} </div>
+        <br>
+        <div class="nav-buttons">
+            <button id="prev-btn2">Previous</button>
+            <button id="home-btn2">Home</button>
+            <button id="next-btn2">Next</button>
+        </div>
+    </div>
+    <script>
+        const currentNovel = "{{ novel_name }}";
+        let currentChapter = {{ chapter_number }};
+
+        function fetchChapter(chapterNumber) {
+            fetch(`/api/${currentNovel}/${chapterNumber}`)
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.content) {
+                        document.getElementById("chapter-heading").innerText = data.heading;
+                        document.getElementById("chapter-content").innerHTML = data.content.replace(/\n/g, "<br><br>");
+                        currentChapter = chapterNumber;
+                    } else {
+                        alert("Chapter Not Found!!");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching chapter:", error);
+                    document.getElementById("chapter-heading").innerText = "Error";
+                    document.getElementById("chapter-content").innerText = error.message;
+                });
+        }
+
+        document.getElementById("prev-btn1").addEventListener("click", function () {
+            if (currentChapter > 1) {
+                window.location.href = `/${currentNovel}/${currentChapter - 1}`;
+            }
+        });
+
+        document.getElementById("prev-btn2").addEventListener("click", function () {
+            if (currentChapter > 1) {
+                window.location.href = `/${currentNovel}/${currentChapter - 1}`;
+            }
+            window.scrollTo(0, 0);
+        });
+
+        document.getElementById("home-btn1").addEventListener("click", function () {
+            window.location.href = `/${currentNovel}`;
+        });
+
+        document.getElementById("home-btn2").addEventListener("click", function () {
+            window.location.href = `/${currentNovel}`;
+        });
+
+        document.getElementById("next-btn1").addEventListener("click", function () {
+            window.location.href = `/${currentNovel}/${currentChapter + 1}`;
+        });
+
+        document.getElementById("next-btn2").addEventListener("click", function () {
+            window.location.href = `/${currentNovel}/${currentChapter + 1}`;
+            window.scrollTo(0, 0);
+        });
+
+        document.onkeydown = checkKey;
+        function checkKey(e) {
+            e = e || window.event;
+            switch (e.keyCode) {
+                case (65):
+                case (37):
+                    if (currentChapter > 1) {
+                        window.location.href = `/${currentNovel}/${currentChapter - 1}`;
+                    }
+                    break;
+                case (68):
+                case (39): 
+                    window.location.href = `/${currentNovel}/${currentChapter + 1}`;
+                    break;
+                default:
+                    console.log
+                    break;
+            }
+        }
+
+</script>
+</body>
+</html>
