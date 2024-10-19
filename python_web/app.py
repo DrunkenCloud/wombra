@@ -3,9 +3,10 @@ import os
 
 app = Flask(__name__)
 
-NOVEL_DIRS = 'novels\\'
+NOVEL_DIRS = '..\\novels\\'
 
 def get_chapter_data(novel_name, chapter_number):
+    print("jhere")
     """Read the chapter file for a specific novel and return the heading and content."""
     try:
         chapter_path = os.path.join(os.getcwd(), NOVEL_DIRS, novel_name, f"{chapter_number}")
@@ -29,7 +30,6 @@ def index():
 
 @app.route('/favicon.ico')
 def favicon():
-    print("here")
     return send_from_directory(os.path.join(app.root_path, 'static', 'images'), 'reader.png', mimetype='image/png')
 
 @app.route('/<novel_name>/<int:chapter_number>', methods=['GET'])

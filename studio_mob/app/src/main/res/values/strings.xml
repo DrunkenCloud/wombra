@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">MyApplication</string>
+    <string name="red_button_clicked">Red button clicked</string>
+    <string name="blue_button_clicked">Blue button clicked</string>
+    <string name="red_text">Red Button</string>
+    <string name="blue_text">Blue Button</string>
+    <string name="click_a_button">Click a button</string>
+    <string name="start_script">Start Script</string>
+    <string name="cancel_script">Cancel Script</string>
+    <string name="output_will_appear_here">Output will appear here</string>
+    <string name="open_file">Open File</string>
+    <string name="file_content_will_be_shown_here">File content will be shown here</string>
+    <string name="previous">Previous</string>
+    <string name="home">Home</string>
+    <string name="next">Next</string>
+    <string name="webnovel_reader">Webnovel Reader</string>
+    <string name="download">Download</string>
+    <string name="continueReading">Continue</string>
+    <string name="start">Start</string>
+    <string name="add_a_novel">Add a Novel</string>
+    <string name="enter_url_here">Enter URL here:</string>
+    <string name="hint">hint</string>
+    <string name="add_novel">Add Novel</string>
+</resources>

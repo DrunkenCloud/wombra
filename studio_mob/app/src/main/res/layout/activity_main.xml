@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="@color/black"
+    tools:context=".MainActivity"
+    android:foreground="?attr/selectableItemBackground">
+
+    <!-- Heading TextView -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textSize="45sp"
+        android:background="@color/purple_200"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:textStyle="bold"
+        android:text="@string/webnovel_reader" />
+    <Button
+        android:layout_marginTop="20dp"
+        android:id="@+id/addNovel"
+        android:text="@string/add_a_novel"
+        android:textSize="20sp"
+        android:background="@color/purple_500"
+        android:textColor="@color/white"
+        android:fontFamily="sans-serif-light"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- ScrollView to hold multiple CardView items -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp">
+
+        <!-- This LinearLayout will contain the dynamically added CardViews -->
+        <LinearLayout
+            android:id="@+id/directoryLayout"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
